@@ -1,0 +1,109 @@
+import time
+import serial
+import cv2
+import RPi.GPIO as GPIO
+import urllib.request
+
+
+def SerialWrite(num):
+    ser.write(num.encode('utf-8'))
+
+
+# Button Function
+def ButtonState():
+    global Tim
+    print(Tim)
+    while True:
+        if GPIO.input(23)==GPIO.LOW:
+            if (Tim<9) and (Tim>=0):
+                Tim+=1
+            print(Tim)
+            time.sleep(0.5)
+        elif GPIO.input(24)==GPIO.LOW:
+            if (Tim<=9) and (Tim>0):
+                Tim-=1
+            print(Tim)
+            time.sleep(0.5)
+        elif GPIO.input(25)==GPIO.LOW:
+            Snd=str(Tim)
+            print("Sent time Is "+Snd)
+            return Snd
+    
+
+def LinkIot(Val1,Type):
+    if Type==1:
+        Rspn=urllib.request.urlopen("https://api.thingspeak.com/update?api_key=FODMLEQ92N7QEAYN&field1="+Val1)
+    elif Type==2:
+        Rspn=urllib.request.urlopen("https://api.thingspeak.com/update?api_key=FODMLEQ92N7QEAYN&field2="+Val1)
+    elif Type==3:
+        Rspn=urllib.request.urlopen("https://api.thingspeak.com/update?api_key=FODMLEQ92N7QEAYN&field1=0&field2=0")
+    #print("Response Code "+str(Rspn.getcode()))
+
+import subprocess
+p=subprocess.Popen(['python','OtherV.py'])
+
+
+
+#Main Code
+GPIO.setwarnings(False)
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(23,GPIO.IN)
+GPIO.setup(24,GPIO.IN)
+GPIO.setup(25,GPIO.IN)
+GPIO.setup(17,GPIO.OUT)
+
+Tim=0
+
+ser=serial.Serial("/dev/ttyACM0",9600,timeout=1)
+ser.flush()
+
+
+flag=16
+Out=''
+
+while True:
+    if ser.in_waiting>0:
+        Out=ser.readline().decode("ascii").rstrip()
+    ser.flush()
+    if Out=="L3":
+        print("Send To Iot "+Out)
+    elif Out=="L6":
+        print("Send To Iot "+Out)
+        GPIO.output(17,GPIO.HIGH)
+        time.sleep(0.5)
+        GPIO.output(17,GPIO.LOW)
+        Cnt=ButtonState()
+        SerialWrite(Cnt)
+    elif Out=="R3":
+        print("Send To Iot "+Out)
+    elif Out=="R6":
+        print("Send To Iot "+Out)
+        GPIO.output(17,GPIO.HIGH)
+        time.sleep(0.5)
+        GPIO.output(17,GPIO.LOW)
+        Cnt=ButtonState()
+        SerialWrite(Cnt)
+    else:
+        SerialWrite("0")
+    ser.flush()
+   
+    if len(Out)>1:
+        if Out[0]=="L":
+            Val1=Out[1];
+            if flag>15:
+                LinkIot(Val1,1)
+                flag=0
+        if Out[0]=="R":
+            Val1=Out[1];
+            if flag>15:
+                LinkIot(Val1,2)
+                flag=0
+    else:
+        if flag>15:
+            LinkIot(0,3)
+            flag=0
+    flag+=1
+    Out=''
+    
+    
+    
