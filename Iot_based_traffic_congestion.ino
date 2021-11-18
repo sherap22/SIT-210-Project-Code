@@ -17,6 +17,7 @@ unsigned char ir1_v,ir2_v,ir3_v,ir4_v;
 
 void readCongestion()
 {
+  
   ir1_v=digitalRead(ir1);
   ir2_v=digitalRead(ir2);
   ir3_v=digitalRead(ir3);
@@ -43,50 +44,19 @@ void readCongestion()
     else{ Serial.println("LR");}         
 
       
-  while (Serial.available()) {
+  while (Serial.available()) 
+  {
        int Val=Serial.read()-'0';    
-     /*String Val = Serial.readString();     
-     if (Val.indexOf("L")!=-1)
-       {
-        int Loc=Val.indexOf("L");
-        if (Val.length()>4)
-         {
-          int V1=(int)(Val[Loc+1])-48;
-          int V2=(int)(Val[Loc+2])-48;
-          T1=V1*10+V2;
-          T1=T1*1000;      
-         }
-        else
-        {
-          T1=(int)(Val[Loc+1])-48;
-          T1=T1*1000;          
-          }        
-        //Serial.println(T1);
-        } 
-        
-      if (Val.indexOf("R")!=-1)
-       {
-        int Loc1=Val.indexOf("R");
-        if (Val.length()>4)
-         {
-          int v1=(int)(Val[Loc1+1])-48;
-          int v2=(int)(Val[Loc1+2])-48;
-          T2=v1*10+v2;
-          T2=T2*1000;      
-         }
-        else
-        {
-          T2=(int)(Val[Loc1+1])-48;
-          T2=T2*1000;          
-          }  
-        // Serial.println(T2);        
-        }*/
+ 
        T1=T1+(Val*1000);
      }
+  
   }
 
 
-void setup() {
+void setup() 
+{
+  
   Serial.begin(9600);
   pinMode(r1,OUTPUT);
   pinMode(y1,OUTPUT);
@@ -103,11 +73,11 @@ void setup() {
  
   digitalWrite(r1,LOW);digitalWrite(y1,LOW);digitalWrite(g1,LOW);
   digitalWrite(r2,LOW);digitalWrite(y2,LOW);digitalWrite(g2,LOW); 
- 
 
   }
 
-void loop() {
+void loop() 
+{
   
   digitalWrite(r1,HIGH);digitalWrite(y1,LOW);digitalWrite(g1,HIGH);//light 1 yellow
   digitalWrite(r2,LOW);digitalWrite(y2,HIGH);digitalWrite(g2,HIGH); 
@@ -127,10 +97,6 @@ void loop() {
   digitalWrite(r1,LOW);digitalWrite(y1,HIGH);digitalWrite(g1,HIGH);//light 2 green
   digitalWrite(r2,HIGH);digitalWrite(y2,HIGH);digitalWrite(g2,LOW);
   readCongestion();
-  delay(T1);
-
- 
-
-  
+  delay(T1);  
   
 }
